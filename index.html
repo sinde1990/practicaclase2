@@ -1,0 +1,227 @@
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, inital-scale=1.0">
+<title>Mi primer mapa en Openlayers</title>
+<link rel="stylesheet" href ="./libs/v6.0.0-dist/ol.css">
+<script src="https://openlayers.org/en/v6.5.0/build/ol.js" type="text/javascript"></script>
+<style> 
+
+
+* {
+	box-sizing: border-box
+}
+
+body {
+	margin: 0;
+	padding:0;
+}
+.map{
+	height: 100vh;
+	width: 100vw;	
+}
+body{
+	Background-color:lightblue;
+}
+h1{
+	color: red;
+	text-align: center;	
+}
+
+p{
+	font-family: verdana;
+	font-size: 20px;
+	}
+#boton{
+	color:red
+	}
+
+
+
+</style>
+
+
+
+</head>
+<body>
+
+<script>
+window.onload = init;
+function init(){
+	const map = new ol.Map({	
+		view: new ol.View ({
+			center: ol.proj.transform([-78.4800,-0.1480], 'EPSG:4326', 'EPSG:3857' ),
+			zoom: 13.9,
+			minZoom: 10
+			
+		}),
+		layers: [
+			new ol.layer.Tile({
+				source: new ol.source.OSM()
+			})
+		],
+		target:"js-map"
+	})
+	
+	const ortoIGM = new ol.layer.Tile({
+		source: new ol.source.TileWMS({
+			url:"https://www.geoportaligm.gob.ec/orto/wms?",
+			params:{
+				LAYERS: "quito 2019",
+				FORMAT:"image/png",
+				TRANSPARENT: true
+			},
+			attributions: '<a href=https://www.geoportaligm.gob.ec/portal/index.php/descarga-de-servicios-wms-del-igm/>IGM</a>'
+			
+			
+			
+		})
+	})
+	map.addLayer(ortoIGM);
+	
+		const recorridos = new ol.layer.Tile({
+		source: new ol.source.TileWMS({
+			url:"https://geoserver.idesinde.com:8443/geoserver/ows?",
+			params:{
+				LAYERS: "Lopez:Recorrido_manual",
+				FORMAT:"image/png",
+				TRANSPARENT: true
+			},
+			attributions: '<a href=https://www.geoportaligm.gob.ec/portal/index.php/descarga-de-servicios-wms-del-igm/>IGM</a>'
+			
+			
+			
+		})
+	})
+	map.addLayer(recorridos);	
+}
+
+function visualizarinfoIGM(){
+
+var capa = prompt("Si desea visualizar una capa, intruduzca alguna de las opciones, ejemplos: igm:ferrocarril, igm:lago_laguna,igm:rio_doble", "igm:vias" )
+var ancho = prompt("Indique el valor de ancho de la imagen", "800")
+var alto= prompt("Indique el valor de alto de la imagen", "800")
+
+
+var enlace = "http://www.geoportaligm.gob.ec/nacional/wms?Request=getmap&service=wms&width="+ancho+"&height="+alto+"&FORMAT=image/png&VERSION=1.3.0&LAYERS="+capa+"&CRS=EPSG:4326&BBOX=-5.016662470417044,-81.05051988836648,1.7132861182945065,-75.1789872920763"
+
+document.getElementById("visual").href= enlace
+document.getElementById("visual").src= enlace
+
+}
+
+
+function desplegablenacional() {
+
+var caparegional = document.getElementById("desplegablenacional").value
+var formato = document.getElementById("formatos").value
+
+var enlacereg = "http://www.geoportaligm.gob.ec/regional/wfs?request=GetFeature&service=wfs&version=2.0.0&typename="+caparegional+"&outputformat="+formato
+
+document.getElementById("descargareg").href= enlacereg
+}
+
+function visualizarortofotos(){
+
+var lugar = document.getElementById("visortofoto").value;
+
+if (lugar == "quito"){
+coord = "-78.5086510,-0.2156987,-78.5055525,-0.2134044"
+capaorto = "quito 2019"}
+
+else if (lugar == "cuenca"){
+coord = "-79.0066655,-2.8981858,-79.0038857,-2.8961406"
+capaorto = "cuenca 2019"}
+
+else if (lugar == "guayaquil"){
+coord = "-79.8771175,-2.1874279,-79.8745473,-2.1852879"
+capaorto = "guayaquil 2018"}
+
+else if (lugar == "banos"){
+coord = "-78.428965,-1.401006,-78.415944,-1.391388"
+capaorto = "igm:canton_banos_2011"}
+
+else if (lugar == "machala"){
+coord = "610419.3,9638158.9,611969.0,9639328.2"
+capaorto = "igm:machala"}
+
+enlaceorto = "http://geoportaligm.gob.ec/orto/wms?service=wms&version=1.3.0&request=GETMAP&WIDTH=800&HEIGHT=800&LAYERS="+capaorto+"&BBOX="+coord+"&FORMAT=image/png"
+
+
+document.getElementById("ortofotos").src = enlaceorto
+}
+
+
+</script>
+
+
+
+
+<H1>Mi primer mapa en Openlayers</H1>
+<div id="js-map" class="map" ></div>
+
+<br><br>
+
+ <h1>Geoportal SINDE</h1>
+<h2> 1. Herramienta para visualizar la información nacional del IGM</h2>
+<button type="button" onclick ="visualizarinfoIGM()" style="width:400;height:100; text-size:100px">Visualizar información 1:1.000.000</button>
+<br>
+
+<img id="visual" src="">
+<br>
+<h2> 2. Herramienta para descargar la información nacional del IGM</h2>
+
+
+
+
+
+
+<select id="desplegablenacional" onchange="desplegablenacional()" >
+<option value="igm:isla_a">Islas
+<option value="igm:lago_laguna_a">Lagos
+<option value="igm:poblado_p">Poblados
+<option value="igm:via_l">Vias
+<option value="igm:zona_urbana_a">Zona urbana
+<option value="igm:curva_nivel_l">Curvas de nivel
+<option value="igm:rio_l">Río torrente
+</select>
+<br><br>
+<select id="formatos" onchange="desplegablenacional()" >
+<option value="shape-zip">Shapefile
+<option value="GML2">GML
+<option value="KML">KML
+
+</select>
+
+
+
+<br><br><br>
+<a id="descargareg" href="" >Descarque aquí</a>
+<br>
+
+
+<h2> 3. Herramienta para visualizar lugares emblemáticos del Ecuador</h2>
+
+<select id="visortofoto" onchange="visualizarortofotos()" >
+<option value="quito">Basílica de Quito
+<option value="cuenca">Catedral de Cuenca
+<option value="guayaquil">Malecón 2000 de Guayaquil
+<option value="banos">Ciudad de Baños de Agua Santa
+<option value="machala">Puerto Bolivar
+</select>
+
+
+<button> Visualizar ortofoto </button>
+
+<br><br>
+
+
+<center><img id="ortofotos" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Ortofoto_Citt%C3%A0_Alta%2C_Rocca.jpg/800px-Ortofoto_Citt%C3%A0_Alta%2C_Rocca.jpg" style = "width:800px;height=800px"></center>
+
+
+
+
+
+</body>
+</html>
